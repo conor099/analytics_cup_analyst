@@ -25,7 +25,21 @@ def load_tracking_dataframes(match_id):
     # Drop any columns from the tracking data if all values are NaN/None.
     tracking_df = match_tracking_data.dropna(axis=1, how="all")
 
-    return tracking_df
+    # Seems like all frames included are only when ball is in play. Drop ball_state column if all values = 'alive'.
+    if (tracking_df["ball_state"] == "alive").all():
+        tracking_df = tracking_df.drop(columns=["ball_state"])
+
+    return tracking_df, match_metadata
 
 
-clean_tracking_data = load_tracking_dataframes(match_id=match_id)
+clean_tracking_data, metadata = load_tracking_dataframes(match_id=match_id)
+
+#%% Testing load of events data.
+
+events_url = f"https://raw.githubusercontent.com/SkillCorner/opendata/master/data/matches/{match_id}/{match_id}_dynamic_events.csv"
+events_data = pd.read_csv(events_url)
+
+#%% Testing load of phases of play data.
+
+pop_url = f"https://raw.githubusercontent.com/SkillCorner/opendata/master/data/matches/{match_id}/{match_id}_phases_of_play.csv"
+pop_data = pd.read_csv(pop_url)
